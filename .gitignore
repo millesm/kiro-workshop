@@ -1,0 +1,7 @@
+node_modules
+message_*
+venv
+*.pyc
+*.log
+session.json
+agent.json

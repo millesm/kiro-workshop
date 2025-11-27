@@ -1,0 +1,72 @@
+version: '3.8'
+
+services:
+  # E-commerce Backend API
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    ports:
+      - "5000:5000"
+    environment:
+      - NODE_ENV=production
+    volumes:
+      - ./ecommerce.db:/app/ecommerce.db
+    networks:
+      - ecommerce-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/api/products"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Shopping Assistant Chatbot Service
+  chatbot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5001:5001"
+    environment:
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_SESSION_TOKEN=${AWS_SESSION_TOKEN}
+      - AWS_REGION=${AWS_REGION:-us-west-2}
+      - BACKEND_API_URL=http://backend:5000
+      - CHATBOT_PORT=5001
+      - SESSION_STORAGE_DIR=/app/sessions
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    volumes:
+      - chatbot-sessions:/app/sessions
+    depends_on:
+      - backend
+    networks:
+      - ecommerce-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Frontend (React)
+  frontend:
+    build:
+      context: ./client
+      dockerfile: Dockerfile.frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - REACT_APP_BACKEND_URL=http://localhost:5000
+      - REACT_APP_CHATBOT_URL=http://localhost:5001
+    depends_on:
+      - backend
+      - chatbot
+    networks:
+      - ecommerce-network
+
+networks:
+  ecommerce-network:
+    driver: bridge
+
+volumes:
+  chatbot-sessions:

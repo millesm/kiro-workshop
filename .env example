@@ -1,0 +1,18 @@
+# AWS Credentials for Bedrock Access
+AWS_ACCESS_KEY_ID=""
+AWS_SECRET_ACCESS_KEY=""
+AWS_SESSION_TOKEN=""
+AWS_REGION=us-west-2
+
+# Backend API Configuration
+BACKEND_API_URL=http://localhost:5000
+
+# Chatbot Service Configuration
+CHATBOT_PORT=5001
+
+# Session Storage
+SESSION_STORAGE_DIR=./sessions
+
+# Logging
+LOG_LEVEL=INFO
+

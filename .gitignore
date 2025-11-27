@@ -5,3 +5,4 @@ venv
 *.log
 session.json
 agent.json
+.env
